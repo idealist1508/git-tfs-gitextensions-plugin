@@ -9,12 +9,14 @@ namespace GitTfs.GitExtensions.Plugin
     public partial class GitTfsDialog : Form
     {
         private readonly IGitUICommands _commands;
-        private readonly SettingsContainer _settings;
+        private readonly PluginSettings _settings;
+        private readonly ISettingsSource _source;
 
-        public GitTfsDialog(IGitUICommands commands, SettingsContainer settings, IEnumerable<string> tfsRemotes)
+        public GitTfsDialog(IGitUICommands commands, PluginSettings settings, ISettingsSource source, IEnumerable<string> tfsRemotes)
         {
             _commands = commands;
             _settings = settings;
+            _source = source;
 
             InitializeComponent();
             TfsRemoteComboBox.DataSource = tfsRemotes.ToList();
@@ -30,20 +32,20 @@ namespace GitTfs.GitExtensions.Plugin
 
         private void InitializeTfsRemotes()
         {
-            TfsRemoteComboBox.Text = _settings.TfsRemote;
+            TfsRemoteComboBox.Text = _settings.TfsRemote[_source];
         }
 
         private void InitializePull()
         {
-            switch(_settings.PullSetting)
+            switch(_settings.PullBehaviour)
             {
-                case PullSetting.Pull:
+                case PullBehaviour.Pull:
                     PullRadioButton.Checked = true;
                     break;
-                case PullSetting.Rebase:
+                case PullBehaviour.Rebase:
                     RebaseRadioButton.Checked = true;
                     break;
-                case PullSetting.Fetch:
+                case PullBehaviour.Fetch:
                     FetchRadioButton.Checked = true;
                     break;
             }
@@ -65,7 +67,7 @@ namespace GitTfs.GitExtensions.Plugin
         {
             if (PullRadioButton.Checked)
             {
-                _settings.PullSetting = PullSetting.Pull;
+                _settings.PullBehaviour = PullBehaviour.Pull;
                 if (!_commands.StartGitTfsCommandProcessDialog("pull", "--remote " + TfsRemoteComboBox.Text))
                 {
                     _commands.StartResolveConflictsDialog();
@@ -73,28 +75,28 @@ namespace GitTfs.GitExtensions.Plugin
             }
             else if (RebaseRadioButton.Checked)
             {
-                _settings.PullSetting = PullSetting.Rebase;
+                _settings.PullBehaviour = PullBehaviour.Rebase;
                 _commands.StartGitTfsCommandProcessDialog("fetch", "--remote " + TfsRemoteComboBox.Text);
                 _commands.StartRebaseDialog("tfs/" + TfsRemoteComboBox.Text);
             }
             else if (FetchRadioButton.Checked)
             {
-                _settings.PullSetting = PullSetting.Fetch;
+                _settings.PullBehaviour = PullBehaviour.Fetch;
                 _commands.StartGitTfsCommandProcessDialog("fetch", "--remote " + TfsRemoteComboBox.Text);
             }
         }
 
         private void InitializePush()
         {
-            switch (_settings.PushSetting)
+            switch (_settings.PushBehaviour)
             {
-                case PushSetting.Checkin:
+                case PushBehaviour.Checkin:
                     CheckinRadioButton.Checked = true;
                     break;
-                case PushSetting.Shelve:
+                case PushBehaviour.Shelve:
                     ShelveRadioButton.Checked = true;
                     break;
-                case PushSetting.RCheckin:
+                case PushBehaviour.RCheckin:
                     RCheckinRadioButton.Checked = true;
                     break;
             }
@@ -116,17 +118,17 @@ namespace GitTfs.GitExtensions.Plugin
         {
             if (CheckinRadioButton.Checked)
             {
-                _settings.PushSetting = PushSetting.Checkin;
+                _settings.PushBehaviour = PushBehaviour.Checkin;
                 _commands.StartGitTfsCommandProcessDialog("checkintool", "--remote " + TfsRemoteComboBox.Text);
             }
             else if (ShelveRadioButton.Checked)
             {
-                _settings.PushSetting = PushSetting.Shelve;
-                new ShelveDialog(_commands, _settings.ShelveSettings).ShowDialog();
+                _settings.PushBehaviour = PushBehaviour.Shelve;
+                new ShelveDialog(_commands, _settings, _source).ShowDialog();
             }
             else if (RCheckinRadioButton.Checked)
             {
-                _settings.PushSetting = PushSetting.RCheckin;
+                _settings.PushBehaviour = PushBehaviour.RCheckin;
                 _commands.StartGitTfsCommandProcessDialog("rcheckin", "--remote " + TfsRemoteComboBox.Text);
             }
             this.Close();
@@ -134,7 +136,7 @@ namespace GitTfs.GitExtensions.Plugin
 
         private void TfsRemoteComboBoxSelectedIndexChanged(object sender, EventArgs e)
         {
-            _settings.TfsRemote = TfsRemoteComboBox.Text;
+            _settings.TfsRemote[_source] = TfsRemoteComboBox.Text;
         }
     }
 }

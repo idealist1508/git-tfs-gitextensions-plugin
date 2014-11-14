@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GitUIPluginInterfaces">
+      <HintPath>lib\GitUIPluginInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -39,10 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PullSetting.cs" />
-    <Compile Include="SettingsContainer.cs" />
-    <Compile Include="PushSetting.cs" />
-    <Compile Include="ShelveSettingsContainer.cs" />
+    <Compile Include="PullBehaviour.cs" />
+    <Compile Include="PluginSettings.cs" />
+    <Compile Include="PushBehaviour.cs" />
     <Compile Include="SettingKeys.cs" />
     <Compile Include="GitUICommandsExtensions.cs" />
     <Compile Include="GitTfsDialog.cs">
@@ -76,12 +78,6 @@
     <EmbeddedResource Include="ShelveDialog.resx">
       <DependentUpon>ShelveDialog.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="gitextensions\Plugins\GitUIPluginInterfaces\GitUIPluginInterfaces.csproj">
-      <Project>{27559302-F35E-4B62-A6EC-11FF21A5FA6F}</Project>
-      <Name>GitUIPluginInterfaces</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

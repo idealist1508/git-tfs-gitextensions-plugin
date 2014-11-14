@@ -9,20 +9,29 @@ namespace GitTfs.GitExtensions.Plugin
 {
     public class GitTfsPlugin : IGitPlugin
     {
+        private readonly PluginSettings _pluginSettings = new PluginSettings();
+
+        public IEnumerable<ISetting> GetSettings()
+        {
+            yield return _pluginSettings.TfsRemote;
+            yield return _pluginSettings.ShelveSetName;
+            yield return _pluginSettings.Overwrite;
+        }
+
         public void Register(IGitUICommands gitUiCommands)
         {
-            var existingKeys = Settings.GetAvailableSettings();
-
-            var settingsToAdd = from field in typeof(SettingKeys).GetFields(BindingFlags.Public | BindingFlags.Static)
-                                let key = (string)field.GetValue(null)
-                                where !existingKeys.Contains(key)
-                                select key;
-
-            foreach (var settingToAdd in settingsToAdd)
-            {
-                Settings.AddSetting(settingToAdd, string.Empty);
-            }
-
+//            var existingKeys = Settings.GetAvailableSettings();
+//
+//            var settingsToAdd = from field in typeof(SettingKeys).GetFields(BindingFlags.Public | BindingFlags.Static)
+//                                let key = (string)field.GetValue(null)
+//                                where !existingKeys.Contains(key)
+//                                select key;
+//
+//            foreach (var settingToAdd in settingsToAdd)
+//            {
+//                Settings.AddSetting(settingToAdd, string.Empty);
+//            }
+//
         }
 
         public void Unregister(IGitUICommands gitUiCommands)
@@ -31,7 +40,7 @@ namespace GitTfs.GitExtensions.Plugin
 
         public bool Execute(GitUIBaseEventArgs gitUiCommands)
         {
-            if (string.IsNullOrEmpty(gitUiCommands.GitModule.GitWorkingDir))
+            if (string.IsNullOrEmpty(gitUiCommands.GitModule.WorkingDir))
             {
                 return true;
             }
@@ -40,7 +49,7 @@ namespace GitTfs.GitExtensions.Plugin
 
             if (remotes.Any())
             {
-                new GitTfsDialog(gitUiCommands.GitUICommands, PluginSettings, remotes).ShowDialog();
+                new GitTfsDialog(gitUiCommands.GitUICommands, _pluginSettings, Settings, remotes).ShowDialog();
                 return false;
             }
 
@@ -63,11 +72,7 @@ namespace GitTfs.GitExtensions.Plugin
             get { return "git-tfs"; }
         }
 
-        public IGitPluginSettingsContainer Settings { get; set; }
+        public ISettingsSource Settings { get; set; }
 
-        public SettingsContainer PluginSettings
-        {
-            get { return new SettingsContainer(Settings); }
-        }
     }
 }

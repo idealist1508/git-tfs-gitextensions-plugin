@@ -1,6 +1,6 @@
 ﻿namespace GitTfs.GitExtensions.Plugin
 {
-    public enum PullSetting
+    public enum PullBehaviour
     {
         Pull,
         Rebase,

@@ -1,6 +1,6 @@
 ﻿namespace GitTfs.GitExtensions.Plugin
 {
-    public enum PushSetting
+    public enum PushBehaviour
     {
         RCheckin,
         Checkin,

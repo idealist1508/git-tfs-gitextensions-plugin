@@ -7,12 +7,14 @@ namespace GitTfs.GitExtensions.Plugin
     public partial class ShelveDialog : Form
     {
         private readonly IGitUICommands _commands;
-        private readonly ShelveSettingsContainer _settings;
+        private readonly PluginSettings _settings;
+        private readonly ISettingsSource _source;
 
-        public ShelveDialog(IGitUICommands commands, ShelveSettingsContainer settings)
+        public ShelveDialog(IGitUICommands commands, PluginSettings settings, ISettingsSource source)
         {
             _commands = commands;
             _settings = settings;
+            _source = source;
 
             InitializeComponent();
             InitializeFromSettings();
@@ -20,8 +22,8 @@ namespace GitTfs.GitExtensions.Plugin
 
         private void InitializeFromSettings()
         {
-            NameTextBox.Text = _settings.Name;
-            OverwriteCheckBox.Checked = _settings.Overwrite;
+            NameTextBox.Text = _settings.ShelveSetName[_source];
+            OverwriteCheckBox.Checked = _settings.Overwrite[_source] ?? false;
             SetShelveButtonEnabledState();
         }
 
@@ -39,8 +41,8 @@ namespace GitTfs.GitExtensions.Plugin
         {
             if (string.IsNullOrEmpty(NameTextBox.Text)) return;
 
-            _settings.Name = NameTextBox.Text;
-            _settings.Overwrite = OverwriteCheckBox.Checked;
+            _settings.ShelveSetName[_source] = NameTextBox.Text;
+            _settings.Overwrite[_source] = OverwriteCheckBox.Checked;
 
             _commands.StartGitTfsCommandProcessDialog("shelve", OverwriteCheckBox.Checked ? "-f " : "", NameTextBox.Text);
             Close();
