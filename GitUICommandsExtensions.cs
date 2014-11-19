@@ -6,7 +6,9 @@ namespace GitTfs.GitExtensions.Plugin
     {
         public static bool StartGitTfsCommandProcessDialog(this IGitUICommands commands, params string[] args)
         {
-            return commands.StartGitCommandProcessDialog("tfs " + string.Join(" ", args));
+            var commandResult = commands.StartGitCommandProcessDialog("tfs " + string.Join(" ", args));
+            commands.RepoChangedNotifier.Notify();
+            return commandResult;
         }
     }
 }
